@@ -23,7 +23,9 @@ seconds earlier than TV.
 -skipfile : Set skipfile.
 
 ## Example:
+```
 RadioDelay.exe -delay 5.6 -in 0 -out 1 -play
+```
 
 # Dependencies
 Radiodelay is based in part on the work of the 
@@ -37,17 +39,20 @@ A simple Makefile is available for Windows/Linux/MacOS. On windows you can use M
 On linux/Mac use g++ or clang++.
 
 ##### Example Windows 64 bit MSYS:
+```
 $ pacman -S mingw-w64-x86_64-fltk  
 $ make
-
+```
 ##### Example Arch Linux:
+```
 $ pacman -S fltk  
 $ make
-
+```
 ##### Example MacOS:
+```
 $ brew install fltk  
 $ make
-
+```
 # Revision history
 build XXXXXXXX
 
