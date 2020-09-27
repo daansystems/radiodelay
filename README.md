@@ -15,12 +15,6 @@ It is particulary usefull for listening to sports commentary
 on the radio when watching TV. Radio commentary is often a few
 seconds earlier than TV.
 
-# Dependencies
-Radiodelay is based in part on the work of the 
-FLTK project (http://www.fltk.org).
-
-Radiodelay uses miniaudio for input/output (https://github.com/mackron/miniaudio).
-
 # Commandline Options
 -delay x.x : Set the delay in x.x seconds.
 -in x : Preselect the input device by device index number.
@@ -30,6 +24,29 @@ Radiodelay uses miniaudio for input/output (https://github.com/mackron/miniaudio
 
 ## Example:
 RadioDelay.exe -delay 5.6 -in 0 -out 1 -play
+
+# Dependencies
+Radiodelay is based in part on the work of the 
+FLTK project (http://www.fltk.org).
+
+Radiodelay uses miniaudio for input/output (https://github.com/mackron/miniaudio).
+
+# Compiling
+
+A simple Makefile is available for Windows/Linux/MacOS. On windows you can use MinGW/MSYS to compile. Visual Studio should be easy too.
+On linux/Mac use g++ or clang++.
+
+##### Example Windows 64 bit MSYS:
+$ pacman -S mingw-w64-x86_64-fltk  
+$ make
+
+##### Example Arch Linux:
+$ pacman -S fltk  
+$ make
+
+##### Example MacOS:
+$ brew install fltk  
+$ make
 
 # Revision history
 build XXXXXXXX
