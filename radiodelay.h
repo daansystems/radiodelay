@@ -1,0 +1,19 @@
+#ifndef radiodelay_h
+#define radiodelay_h
+#include <FL/Fl.H>
+#include <FL/Fl_Double_Window.H>
+#include <FL/Fl_Box.H>
+#include <FL/Fl_Choice.H>
+#include <FL/Fl_Progress.H>
+#include <FL/Fl_Slider.H>
+#include <FL/Fl_Value_Input.H>
+#include <FL/Fl_Light_Button.H>
+#include <FL/Fl_File_Input.H>
+#include <FL/Fl_Button.H>
+#include <FL/Fl_Return_Button.H>
+#include <FL/Fl_Output.H>
+#include <FL/Fl_Native_File_Chooser.H>
+#include <FL/fl_ask.H>
+#include <FL/Fl_Pixmap.H>
+#include <FL/x.H>
+#endif
