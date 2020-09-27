@@ -16,10 +16,10 @@ on the radio when watching TV. Radio commentary is often a few
 seconds earlier than TV.
 
 # Commandline Options
--delay x.x : Set the delay in x.x seconds.
--in x : Preselect the input device by device index number.
--out x : Preselect the output device by device index number.
--play : Start playing automatically.
+-delay x.x : Set the delay in x.x seconds.  
+-in x : Preselect the input device by device index number.  
+-out x : Preselect the output device by device index number.  
+-play : Start playing automatically.  
 -skipfile : Set skipfile.
 
 ## Example:
