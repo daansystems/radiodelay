@@ -15,6 +15,6 @@ jobs:
     - uses: msys2/setup-msys2@v2
       with:
         update: true
-        install: base-devel git fltk
+        install: base-devel git mingw-w64-x86_64-fltk
     - name: make
       run: make release
