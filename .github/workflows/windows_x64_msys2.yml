@@ -18,6 +18,8 @@ jobs:
       CHERE_INVOKING: 1
     steps:
     - uses: actions/checkout@v2
+    - name: uname
+      run: uname -a
     - name: pacman
       run: pacman -S --noconfirm mingw-w64-x86_64-fltk
     - name: make
