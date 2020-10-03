@@ -15,6 +15,7 @@ jobs:
     env:
       MSYSTEM: MINGW64
       CHERE_INVOKING: 1
+      NOW: $(date +'%Y-%m-%d')
     steps:
     - uses: actions/checkout@v2
     - name: Install packages
@@ -29,8 +30,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: $NOW
+        release_name: Release $NOW
         draft: false
         prerelease: false
     - name: Upload Release Asset
