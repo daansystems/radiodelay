@@ -15,7 +15,6 @@ jobs:
     env:
       MSYSTEM: MINGW64
       CHERE_INVOKING: 1
-      NOW: $(date +'%Y-%m-%d')
     steps:
     - uses: actions/checkout@v2
     - name: Install packages
@@ -24,17 +23,20 @@ jobs:
       run: make release
     - name: Make archive
       run: zip RadioDelay-Windows-x64.zip radiodelay.exe README.md COPYING
-    - name: Create Release
+    - name: Set current date
+      id: date
+      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+    - name: Create release
       id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: $NOW
-        release_name: Release $NOW
+        tag_name: ${{ steps.date.outputs.date }} 
+        release_name: Release ${{ steps.date.outputs.date }} 
         draft: false
         prerelease: false
-    - name: Upload Release Asset
+    - name: Upload release asset
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1
       env:
