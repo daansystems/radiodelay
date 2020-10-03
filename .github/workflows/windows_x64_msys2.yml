@@ -12,10 +12,7 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        shell: bash.exe --login -eo pipefail "{0}"
-    env:
-      MSYSTEM: MINGW64
-      CHERE_INVOKING: 1
+        shell: msys2 {0}
     steps:
     - uses: actions/checkout@v2
     - name: uname
