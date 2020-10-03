@@ -8,16 +8,18 @@ on:
 
 jobs:
   build:
-
     runs-on: windows-latest
     defaults:
       run:
-        shell: msys2 {0}
+        shell: C:\msys64\usr\bin\bash.exe --login -eo pipefail "{0}"
+    env:
+      MSYSTEM: MINGW64
+      CHERE_INVOKING: 1
     steps:
     - uses: actions/checkout@v2
     - name: uname
       run: uname -a
-    - name: pacman
+    - name: fltk
       run: pacman -S --noconfirm mingw-w64-x86_64-fltk
     - name: make
       run: make release
