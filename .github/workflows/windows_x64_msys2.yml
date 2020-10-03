@@ -17,9 +17,14 @@ jobs:
       CHERE_INVOKING: 1
     steps:
     - uses: actions/checkout@v2
-    - name: uname
-      run: uname -a
-    - name: fltk
-      run: pacman -S --noconfirm mingw-w64-x86_64-fltk
+    - name: install packages
+      run: pacman -S --noconfirm mingw-w64-x86_64-fltk zip
     - name: make
       run: make release
+    - name: make archive
+      run: zip radiodelay radiodelay.exe README.md COPYING
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: radiodelay
+        path: radiodelay.zip
