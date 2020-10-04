@@ -12,7 +12,7 @@ Unicode true
 
   ;General
   Name "Radiodelay"
-  OutFile "Radiodelay_Setup.exe"
+  OutFile "RadioDelay-Windows-x64-Setup.exe"
 
   ;Folder selection page
   InstallDir "$PROGRAMFILES64\Radiodelay"

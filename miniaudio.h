@@ -18054,7 +18054,8 @@ static ma_result ma_context_enumerate_devices__alsa(ma_context* pContext, ma_enu
         again for the other device type in this case. We do this for known devices.
         */
         if (cbResult) {
-            if (ma_is_common_device_name__alsa(NAME)) {
+		// HOTFIX audio device not showing
+        //    if (ma_is_common_device_name__alsa(NAME)) {
                 if (deviceType == ma_device_type_playback) {
                     if (!ma_is_capture_device_blacklisted__alsa(NAME)) {
                         cbResult = callback(pContext, ma_device_type_capture, &deviceInfo, pUserData);
@@ -18064,7 +18065,7 @@ static ma_result ma_context_enumerate_devices__alsa(ma_context* pContext, ma_enu
                         cbResult = callback(pContext, ma_device_type_playback, &deviceInfo, pUserData);
                     }
                 }
-            }
+        //    }
         }
 
         if (cbResult == MA_FALSE) {

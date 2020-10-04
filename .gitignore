@@ -31,3 +31,7 @@
 *.out
 *.app
 radiodelay
+
+# Archive
+*.zip
+*.tar.gz

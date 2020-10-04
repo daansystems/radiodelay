@@ -1,7 +1,7 @@
 # Radiodelay
 ## Audio input/output delay for Windows, MacOS, Linux
 
-![Screenshot](Radiodelay.gif)
+![Screenshot](radiodelay.gif)
 
 #### (C)2006-2020 DaanSystems		
 #### License: GPLv3
