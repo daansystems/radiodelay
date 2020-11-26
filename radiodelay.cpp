@@ -6,7 +6,7 @@
 
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h"
-// #define MA_DEBUG_OUTPUT
+#define MA_DEBUG_OUTPUT
 #define MINIAUDIO_IMPLEMENTATION
 // #define MA_NO_PULSEAUDIO
 #include "miniaudio.h"
@@ -18,11 +18,12 @@
 
 static struct {
   bool play;
+  int driver;
   int in;
   int out;
   float delay;
   const char *skipfile;
-} opts = {.play = false, .in = 0, .out = 0, .delay = 1.00, .skipfile = ""};
+} opts = {.play = false, .driver = 0, .in = 0, .out = 0, .delay = 1.00, .skipfile = ""};
 
 static ma_context context;
 static ma_timer timer;
@@ -36,6 +37,7 @@ static ma_pcm_rb ma_pcm_rb_in;
 static float amplitude_in[2];
 static float amplitude_out[2];
 
+Fl_Choice *choice_driver = (Fl_Choice *)0;
 Fl_Choice *choice_input = (Fl_Choice *)0;
 Fl_Progress *progress_left_in = (Fl_Progress *)0;
 Fl_Progress *progress_right_in = (Fl_Progress *)0;
@@ -91,7 +93,6 @@ int arg_handler(int argc, char **argv, int &i) {
     i += 2;
     return 2;
   }
-
   const char *skipfile = get_opt("-skipfile", argc, argv, i);
   if (skipfile) {
     opts.skipfile = skipfile;
@@ -160,31 +161,24 @@ static void cb_capture(ma_device *pDevice, void *pOutput, const void *pInput,
   ma_uint32 framesToWrite = frameCount;
   ma_uint32 bytesPerFrame = ma_get_bytes_per_frame(pDevice->playback.format,
                                                    pDevice->playback.channels);
-  // fprintf(stderr, "CAPTURE: FRAMECOUNT: %d  bytes: %d\n", frameCount,
-  // bytesPerFrame);
   void *pWriteBuffer;
-  //      ma_pcm_rb_reset(&g_rb);
   ma_result result =
       ma_pcm_rb_acquire_write(&ma_pcm_rb_in, &framesToWrite, &pWriteBuffer);
   if (result != MA_SUCCESS) {
     fl_alert("Failed to acquire write.\n");
     return;
   }
-  // TRACE("FRAMES TO WRITE: %d TOTAL BYTES: %d pWriteBuffer %x\n",
-  // framesToWrite, framesToWrite * bytesPerFrame, pWriteBuffer);
   memcpy(pWriteBuffer, pInput, framesToWrite * bytesPerFrame);
   result = ma_pcm_rb_commit_write(&ma_pcm_rb_in, framesToWrite, pWriteBuffer);
   if (result != MA_SUCCESS) {
     fl_alert("Failed to commit write.\n");
   }
-  // fprintf(stderr, "FRAMECOUNT: %d\n", frameCount);
   ma_uint32 frame = 0;
   for (ma_uint32 i = 0; i < frameCount; i++) {
     float left = ABS(((float *)pInput)[frame]);
     float right = ABS(((float *)pInput)[frame + 1]);
     if (left > amplitude_in[0]) {
       amplitude_in[0] = left;
-      // fprintf(stderr, "LEFT: %f\n", left);
     }
     if (right > amplitude_in[1]) {
       amplitude_in[1] = right;
@@ -204,7 +198,6 @@ static void cb_playback_stop(ma_device *pDevice) {
 }
 
 static void stop() {
-  //   fprintf(stderr, "STOP!\n");
   ma_device_uninit(&ma_device_in);
   ma_device_uninit(&ma_device_out);
   ma_pcm_rb_uninit(&ma_pcm_rb_in);
@@ -212,6 +205,7 @@ static void stop() {
   progress_input_delay->value(0);
   slider_input_delay->activate();
   input_delay->activate();
+  choice_driver->activate();
   choice_input->activate();
   choice_output->activate();
   button_play->clear();
@@ -219,7 +213,6 @@ static void stop() {
 }
 
 static void cb_skip_stop(ma_device *pDevice) {
-  //  fprintf(stderr, "skip stop\n");
   ma_decoder_uninit(&ma_skip_decoder);
 }
 
@@ -245,8 +238,6 @@ void cb_skip_data(ma_device *pDevice, void *pOutput, const void *pInput,
 }
 
 static void Skip() {
-  //   fprintf(stderr, "Skip!\n");
-
   ma_decoder_config decoder_config = ma_decoder_config_init(
       DEVICE_FORMAT, DEVICE_CHANNELS, DEVICE_SAMPLE_RATE);
   ma_result result = ma_decoder_init_file(input_skipfile->value(),
@@ -315,7 +306,6 @@ bool play() {
   deviceConfig.stopCallback = cb_capture_stop;
   // deviceConfig.periods = 1;
   // deviceConfig.bufferSizeInFrames = 1000;
-
   deviceConfig.pUserData = NULL;
   ma_result result = ma_device_init(&context, &deviceConfig, &ma_device_in);
   if (result != MA_SUCCESS) {
@@ -350,10 +340,9 @@ bool play() {
   ma_timer_init(&timer);
   recording = true;
   slider_input_delay->deactivate();
-
+  choice_driver->deactivate();
   choice_input->deactivate();
   choice_output->deactivate();
-
   input_delay->deactivate();
   button_play->label("Stop");
   return true;
@@ -406,18 +395,14 @@ static void cb_skip_browse(Fl_Button *, void *) {
   fnfc.title("Pick a WAV file");
   fnfc.type(Fl_Native_File_Chooser::BROWSE_FILE);
   fnfc.filter("WAV Files\t*.wav");
-  // fnfc.directory(".");           // default directory to use
-  // Show native chooser
   switch (fnfc.show()) {
   case -1:
     fl_alert("ERROR: %s", fnfc.errmsg());
     break; // ERROR
   case 1:
-    //  fprintf(stderr, "CANCEL\n");
     break; // CANCEL
   default: {
     input_skipfile->value(fnfc.filename());
-    //         fprintf(stderr, "PICKED: %s\n", fnfc.filename());
     break;
   } // FILE CHOSEN
   };
@@ -435,7 +420,6 @@ void cb_about() {
     Fl_Return_Button *o = new Fl_Return_Button(130, 205, 80, 30, "Close");
     o->callback((Fl_Callback *)cb_about_close);
   } // Fl_Return_Button* o
-
   {
     Fl_Button *o =
         new Fl_Button(25, 105, 295, 25, "Questions: info@@daansystems.com");
@@ -447,7 +431,6 @@ void cb_about() {
     o->callback((Fl_Callback *)cb_about_www,
                 (void *)"https://www.daansystems.com/donate");
   } // Fl_Button* o
-
   {
     Fl_Button *o =
         new Fl_Button(25, 165, 295, 25, "www.daansystems.com/radiodelay");
@@ -476,22 +459,21 @@ void cb_about() {
            "RadioDelay Build %d%02d%02d %dbit\nCopyright 2006-2020 DaanSystems\nLicense: GPLv3",
            year, monthnum + 1, day, sizeof(size_t) == 8 ? 64 : 32);
   output_about->value(newtxt);
-
-  // window_main->add(window_about);
   window_about->show();
 }
 
 void init_mini_audio() {
-  // ma_backend backends[] = {ma_backend_alsa};
   ma_context_config context_config = ma_context_config_init();
-
-  // context_config.alsa.useVerboseDeviceEnumeration = true;
-  if (ma_context_init(NULL, 0, &context_config, &context) != MA_SUCCESS) {
-    //  if (ma_context_init(backends, 1, &context_config, &context) !=
-    //  MA_SUCCESS) {
-    fl_alert("Failed to initialize context.\n");
+  int chosen_backend = choice_driver->value();
+  if (chosen_backend < 0) {
+    chosen_backend = 0;
   }
-
+  ma_backend backends[] = {(ma_backend)chosen_backend};
+  // context_config.alsa.useVerboseDeviceEnumeration = true;
+  if (ma_context_init(backends, 1, &context_config, &context) != MA_SUCCESS) {
+    fl_alert("Failed to initialize context.\n");
+    return;
+  }
   const char *backend = ma_get_backend_name(context.backend);
   ma_device_info *pPlaybackDeviceInfos;
   ma_uint32 playbackDeviceCount;
@@ -502,10 +484,11 @@ void init_mini_audio() {
       &pCaptureDeviceInfos, &captureDeviceCount);
   if (result != MA_SUCCESS) {
     fl_alert("Failed to retrieve device information.\n");
+    return;
   }
+  choice_input->clear();
   for (ma_uint32 iDevice = 0; iDevice < captureDeviceCount; ++iDevice) {
     ma_device_info deviceInfo = pCaptureDeviceInfos[iDevice];
-
     //   fprintf(stderr, "IN: %u: %s  id: %x channels: %d sampleRate: %d\n",
     //   iDevice,
     //           deviceInfo.name, deviceInfo.id, deviceInfo.maxChannels,
@@ -516,7 +499,7 @@ void init_mini_audio() {
     snprintf(name, 254, "%s (%s)", deviceInfo.name, backend);
     choice_input->replace(index, name);
   }
-
+  choice_output->clear();
   for (ma_uint32 iDevice = 0; iDevice < playbackDeviceCount; ++iDevice) {
     ma_device_info deviceInfo = pPlaybackDeviceInfos[iDevice];
     //    fprintf(stderr, "OUT: %u: %s  id: %x\n", iDevice,
@@ -530,6 +513,15 @@ void init_mini_audio() {
   }
 }
 
+void driver_changed(Fl_Widget *, void *) {
+  if (context.backend) {
+    ma_context_uninit(&context);
+  }
+  init_mini_audio();
+  choice_input->value(0);
+  choice_output->value(0);
+}
+
 int main(int argc, char **argv) {
   int i = 1;
   setvbuf(stderr, NULL, _IONBF, 0);
@@ -539,6 +531,7 @@ int main(int argc, char **argv) {
     Fl::fatal("error: unknown option: %s\n"
               "usage: %s [options]\n"
               " -h | --help     : print extended help message\n"
+              " -driver # : driver \n"
               " -in # : input device\n"
               " -out # : output device\n"
               " -play # : auto start playing\n"
@@ -547,40 +540,46 @@ int main(int argc, char **argv) {
               " plus standard FLTK options\n",
               argv[i], argv[0]);
   }
-
-  window_main = new Fl_Double_Window(702, 531, "RadioDelay");
-  //    Fl_Single_Window *window_main = new Fl_Single_Window(702, 531,
-  //    "RadioDelay");
-  window_main->size_range(702, 531);
-
+  window_main = new Fl_Double_Window(702, 606, "RadioDelay");
+  window_main->size_range(702, 606);
   window_main->align(Fl_Align(FL_ALIGN_CLIP | FL_ALIGN_INSIDE));
   {
-    Fl_Box *o = new Fl_Box(15, 25, 670, 110, "Input Device");
+    Fl_Box *o = new Fl_Box(15, 25, 670, 55, "Driver");
     o->box(FL_EMBOSSED_FRAME);
     o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
   } // Fl_Box* o
   {
-    choice_input = new Fl_Choice(25, 40, 650, 25);
+    choice_driver = new Fl_Choice(25, 40, 650, 25);
+    choice_driver->down_box(FL_BORDER_BOX);
+    choice_driver->labeltype(FL_NO_LABEL);
+  } // Fl_Choice* input
+  {
+    Fl_Box *o = new Fl_Box(15, 100, 670, 110, "Input Device");
+    o->box(FL_EMBOSSED_FRAME);
+    o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
+  } // Fl_Box* o
+  {
+    choice_input = new Fl_Choice(25, 115, 650, 25);
     choice_input->down_box(FL_BORDER_BOX);
     choice_input->labeltype(FL_NO_LABEL);
   } // Fl_Choice* input
   {
-    progress_left_in = new Fl_Progress(65, 75, 610, 25, "Left:");
+    progress_left_in = new Fl_Progress(65, 150, 610, 25, "Left:");
     progress_left_in->selection_color(FL_SELECTION_COLOR);
     progress_left_in->align(Fl_Align(FL_ALIGN_LEFT));
   } // Fl_Progress* progress_left_in
   {
-    progress_right_in = new Fl_Progress(65, 100, 610, 25, "Right:");
+    progress_right_in = new Fl_Progress(65, 175, 610, 25, "Right:");
     progress_right_in->selection_color(FL_SELECTION_COLOR);
     progress_right_in->align(Fl_Align(FL_ALIGN_LEFT));
   } // Fl_Progress* progress_right_in
   {
-    Fl_Box *o = new Fl_Box(15, 155, 670, 75, "Delay in seconds");
+    Fl_Box *o = new Fl_Box(15, 230, 670, 75, "Delay in seconds");
     o->box(FL_EMBOSSED_FRAME);
     o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
   } // Fl_Box* o
   {
-    slider_input_delay = new Fl_Slider(25, 165, 565, 25);
+    slider_input_delay = new Fl_Slider(25, 240, 565, 25);
     slider_input_delay->type(5);
     slider_input_delay->box(FL_FLAT_BOX);
     slider_input_delay->minimum(0.01);
@@ -590,7 +589,7 @@ int main(int argc, char **argv) {
     slider_input_delay->callback((Fl_Callback *)cb_slider_input_delay);
   } // Fl_Slider* slider_input_delay
   {
-    input_delay = new Fl_Value_Input(595, 165, 80, 25);
+    input_delay = new Fl_Value_Input(595, 240, 80, 25);
     input_delay->labeltype(FL_NO_LABEL);
     input_delay->minimum(0.01);
     input_delay->maximum(3240);
@@ -599,72 +598,89 @@ int main(int argc, char **argv) {
     input_delay->callback((Fl_Callback *)cb_input_delay);
   } // Fl_Value_Input* input_delay
   {
-    progress_input_delay = new Fl_Progress(25, 195, 650, 25);
+    progress_input_delay = new Fl_Progress(25, 270, 650, 25);
     progress_input_delay->selection_color(FL_SELECTION_COLOR);
   } // Fl_Progress* progress_input_delay
   {
-    Fl_Box *o = new Fl_Box(15, 250, 670, 110, "Output Device");
+    Fl_Box *o = new Fl_Box(15, 325, 670, 110, "Output Device");
     o->box(FL_EMBOSSED_FRAME);
     o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
   } // Fl_Box* o
   {
-    choice_output = new Fl_Choice(25, 265, 650, 25);
+    choice_output = new Fl_Choice(25, 340, 650, 25);
     choice_output->down_box(FL_BORDER_BOX);
     choice_output->labeltype(FL_NO_LABEL);
   } // Fl_Choice* output
   {
-    progress_left_out = new Fl_Progress(65, 300, 610, 25, "Left:");
+    progress_left_out = new Fl_Progress(65, 375, 610, 25, "Left:");
     progress_left_out->selection_color(FL_SELECTION_COLOR);
     progress_left_out->align(Fl_Align(FL_ALIGN_LEFT));
   } // Fl_Progress* progress_left_out
   {
-    progress_right_out = new Fl_Progress(65, 325, 610, 25, "Right:");
+    progress_right_out = new Fl_Progress(65, 400, 610, 25, "Right:");
     progress_right_out->selection_color(FL_SELECTION_COLOR);
     progress_right_out->align(Fl_Align(FL_ALIGN_LEFT));
   } // Fl_Progress* progress_right_out
   {
-    Fl_Box *o = new Fl_Box(15, 380, 670, 70, "Skip audio file");
+    Fl_Box *o = new Fl_Box(15, 455, 670, 70, "Skip audio file");
     o->box(FL_EMBOSSED_FRAME);
     o->align(Fl_Align(FL_ALIGN_TOP_LEFT));
   } // Fl_Box* o
   {
-    input_skipfile = new Fl_File_Input(30, 395, 540, 35);
+    input_skipfile = new Fl_File_Input(30, 470, 540, 35);
   } // Fl_File_Input* input_skipfile
   {
-    Fl_Button *o = new Fl_Button(580, 405, 95, 25, "Browse");
+    Fl_Button *o = new Fl_Button(580, 480, 95, 25, "Browse");
     o->callback((Fl_Callback *)cb_skip_browse);
   } // Fl_Button* o
   {
-    button_play = new Fl_Light_Button(15, 460, 85, 60, "Play");
-    // button_play->type(102);
+    button_play = new Fl_Light_Button(15, 535, 85, 60, "Play");
     button_play->callback((Fl_Callback *)cb_button_play);
   } // Fl_Light_Button* button_play
   {
-    button_skip = new Fl_Light_Button(110, 460, 85, 60, "Skip");
+    button_skip = new Fl_Light_Button(110, 535, 85, 60, "Skip");
     button_skip->callback((Fl_Callback *)cb_button_skip);
   } // Fl_Light_Button* o
   {
-    button_mixer = new Fl_Button(475, 495, 100, 25, "Mixer");
+    button_mixer = new Fl_Button(475, 570, 100, 25, "Mixer");
     button_mixer->callback((Fl_Callback *)cb_mixer);
   } // Fl_Button* button_mixer
   {
-    button_exit = new Fl_Button(585, 495, 100, 25, "Exit");
+    button_exit = new Fl_Button(585, 570, 100, 25, "Exit");
     button_exit->callback((Fl_Callback *)cb_exit);
   } // Fl_Button* button_exit
   {
-    Fl_Button *o = new Fl_Button(585, 460, 100, 25, "About...");
+    Fl_Button *o = new Fl_Button(585, 535, 100, 25, "About...");
     o->callback((Fl_Callback *)cb_about);
   } // Fl_Button* o
   window_main->end();
   window_main->resizable(window_main);
+  {
+    ma_backend enabledBackends[MA_BACKEND_COUNT];
+    size_t enabledBackendCount;
+    ma_result result = ma_get_enabled_backends(enabledBackends, MA_BACKEND_COUNT, &enabledBackendCount);
+    if (result != MA_SUCCESS) {
+      fl_alert("Failed to get enabled drivers");
+      return 1;
+    }
+    for (ma_uint32 iBackend; iBackend < enabledBackendCount; ++iBackend) {
+      ma_backend backend = enabledBackends[iBackend];
+      const char *backend_name = ma_get_backend_name(backend);
+      int index = choice_driver->add("", 0, driver_changed, NULL, 0);
+      choice_driver->replace(index, backend_name);
+    }
+  }
+  if (opts.driver > 0) {
+    choice_driver->value(opts.driver);
+  } else {
+    choice_driver->value(0);
+  }
   init_mini_audio();
-
   if (opts.in > 0) {
     choice_input->value(opts.in);
   } else {
     choice_input->value(0);
   }
-
   if (opts.out > 0) {
     choice_output->value(opts.out);
   } else {

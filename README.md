@@ -54,7 +54,13 @@ $ brew install fltk
 $ make
 ```
 # Revision history
-build XXXXXXXX
+build 20201126
+
++ allow change of driver
++ update miniaudio
++ cleanup makefile a bit
+
+build 20201004
 
 + Released source on github
 + New License GPLv3
