@@ -81,6 +81,12 @@ int arg_handler(int argc, char **argv, int &i) {
     i += 2;
     return 2;
   }
+  const char *driver = get_opt("-driver", argc, argv, i);
+  if (driver) {
+    opts.driver = atoi(driver);
+    i += 2;
+    return 2;
+  }
   const char *in = get_opt("-in", argc, argv, i);
   if (in) {
     opts.in = atoi(in);
