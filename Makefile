@@ -5,13 +5,13 @@ EXT=
 SETUP=
 
 ifneq (, $(findstring mingw, $(MACHINE)))
-	FLTKFLAGS += -D"FOO -static -static-libgcc -static-libstdc++ radiodelay.res.o"
+	FLTKFLAGS += -D"FOO -O2 -static -static-libgcc -static-libstdc++ radiodelay.res.o"
 	EXT += .exe
 	SETUP = "/c/Program Files (x86)/NSIS/makensis.exe" radiodelay.nsi
 else ifneq (, $(findstring linux, $(MACHINE)))
-	FLTKFLAGS += -D"FOO -static-libgcc -static-libstdc++"
+	FLTKFLAGS += -D"FOO -O2 -static-libgcc -static-libstdc++"
 else
-	FLTKFLAGS += -D"FOO"
+	FLTKFLAGS += -D"FOO -O2"
 endif
 
 

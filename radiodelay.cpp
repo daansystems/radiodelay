@@ -36,6 +36,7 @@ static ma_device ma_device_skip;
 static ma_pcm_rb ma_pcm_rb_in;
 static float amplitude_in[2];
 static float amplitude_out[2];
+static ma_backend enabledBackends[MA_BACKEND_COUNT];
 
 Fl_Choice *choice_driver = (Fl_Choice *)0;
 Fl_Choice *choice_input = (Fl_Choice *)0;
@@ -470,10 +471,8 @@ void cb_about() {
 
 void init_mini_audio() {
   ma_context_config context_config = ma_context_config_init();
-  int chosen_backend = choice_driver->value();
-  if (chosen_backend < 0) {
-    chosen_backend = 0;
-  }
+  int chosen_backend = enabledBackends[choice_driver->value()];
+ 
   ma_backend backends[] = {(ma_backend)chosen_backend};
   // context_config.alsa.useVerboseDeviceEnumeration = true;
   if (ma_context_init(backends, 1, &context_config, &context) != MA_SUCCESS) {
@@ -662,14 +661,14 @@ int main(int argc, char **argv) {
   window_main->end();
   window_main->resizable(window_main);
   {
-    ma_backend enabledBackends[MA_BACKEND_COUNT];
+    
     size_t enabledBackendCount;
     ma_result result = ma_get_enabled_backends(enabledBackends, MA_BACKEND_COUNT, &enabledBackendCount);
     if (result != MA_SUCCESS) {
       fl_alert("Failed to get enabled drivers");
       return 1;
     }
-    for (ma_uint32 iBackend; iBackend < enabledBackendCount; ++iBackend) {
+    for (ma_uint32 iBackend = 0; iBackend < enabledBackendCount; ++iBackend) {
       ma_backend backend = enabledBackends[iBackend];
       const char *backend_name = ma_get_backend_name(backend);
       int index = choice_driver->add("", 0, driver_changed, NULL, 0);
