@@ -22,9 +22,12 @@ build:
 icon:
 	windres radiodelay.rc radiodelay.res.o
 
-strip:
+strip-windows:
 	strip radiodelay$(EXT)
 
+strip-macos:
+	strip radiodelay.app/Contents/Macos/radiodelay
+		
 zip:
 	zip RadioDelay-Windows-x64.zip radiodelay.exe README.md COPYING
 
@@ -33,13 +36,13 @@ dmg:
 	cp radiodelay.icns radiodelay.app/Contents/Resources
 	/usr/libexec/PlistBuddy -c 'Add :NSMicrophoneUsageDescription string This app requires microphone access' radiodelay.app/Contents/Info.plist
 	/usr/libexec/PlistBuddy -c 'Add :CFBundleIconFile string radiodelay' radiodelay.app/Contents/Info.plist
-	hdiutil create -fs HFS+ -srcfolder "radiodelay.app" -volname "radiodelay" "radiodelay.dmg"
+	hdiutil create -fs HFS+ -srcfolder "radiodelay.app" -volname "radiodelay" "RadioDelay-MacOS.dmg"
 
 setup:
 	"/c/Program Files (x86)/NSIS/makensis.exe" radiodelay.nsi
 
-windows: icon build strip zip setup
+windows: icon build strip-windows zip setup
 
-macos: build strip dmg
+macos: build strip-macos dmg
 
 
