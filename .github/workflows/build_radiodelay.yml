@@ -7,6 +7,8 @@ on:
 jobs:
   windows:
     runs-on: windows-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
     defaults:
       run:
         shell: C:\msys64\usr\bin\bash.exe --login -eo pipefail "{0}"
@@ -54,32 +56,20 @@ jobs:
         asset_content_type: application/exe
   macos:
     runs-on: macos-latest
+    needs: windows
     steps:
     - uses: actions/checkout@v2
     - name: Install packages
       run: brew install fltk
     - name: Make
       run: make macos
-    - name: Set current date
-      id: date
-      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-    - name: Create release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.date.outputs.date }}
-        release_name: Release ${{ steps.date.outputs.date }}
-        draft: false
-        prerelease: false
     - name: Upload release setup dmg
       id: upload-release-asset-setup
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        upload_url: ${{ needs.windows.outputs.upload_url }}
         asset_path: RadioDelay-MacOS.dmg
         asset_name: RadioDelay-MacOS.dmg
         asset_content_type: application/octet-stream
