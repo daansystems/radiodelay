@@ -216,7 +216,7 @@ static void stop() {
   choice_input->activate();
   choice_output->activate();
   button_play->clear();
-  button_play->label("Play");
+  button_play->label("Play (F5)");
 }
 
 static void cb_skip_stop(ma_device *pDevice) {
@@ -244,7 +244,7 @@ void cb_skip_data(ma_device *pDevice, void *pOutput, const void *pInput,
   }
 }
 
-static void Skip() {
+static void skip() {
   ma_decoder_config decoder_config = ma_decoder_config_init(
       DEVICE_FORMAT, DEVICE_CHANNELS, DEVICE_SAMPLE_RATE);
   ma_result result = ma_decoder_init_file(input_skipfile->value(),
@@ -284,7 +284,7 @@ static void cb_button_skip(Fl_Light_Button *, void *) {
   if (ma_device_is_started(&ma_device_skip)) {
     skipstop();
   } else {
-    Skip();
+    skip();
   }
 }
 
@@ -351,7 +351,8 @@ bool play() {
   choice_input->deactivate();
   choice_output->deactivate();
   input_delay->deactivate();
-  button_play->label("Stop");
+  button_play->label("Stop (F5)");
+  button_play->setonly();
   return true;
 }
 
@@ -527,6 +528,21 @@ void driver_changed(Fl_Widget *, void *) {
   choice_output->value(0);
 }
 
+static int event_handler(int event) {
+  if (event == FL_SHORTCUT) {
+    const int key = Fl::event_key();
+    switch (key) {
+      case 65474: // F5
+        cb_button_play(NULL, NULL);
+        return 1;
+      case 65475: // F6
+        cb_button_skip(NULL, NULL);
+        return 1;
+    }
+  }
+  return 0;
+}
+
 int main(int argc, char **argv) {
   int i = 1;
   setvbuf(stderr, NULL, _IONBF, 0);
@@ -639,11 +655,11 @@ int main(int argc, char **argv) {
     o->callback((Fl_Callback *)cb_skip_browse);
   } // Fl_Button* o
   {
-    button_play = new Fl_Light_Button(15, 535, 85, 60, "Play");
+    button_play = new Fl_Light_Button(15, 535, 85, 60, "Play (F5)");
     button_play->callback((Fl_Callback *)cb_button_play);
   } // Fl_Light_Button* button_play
   {
-    button_skip = new Fl_Light_Button(110, 535, 85, 60, "Skip");
+    button_skip = new Fl_Light_Button(110, 535, 85, 60, "Skip (F6)");
     button_skip->callback((Fl_Callback *)cb_button_skip);
   } // Fl_Light_Button* o
   {
@@ -702,7 +718,6 @@ int main(int argc, char **argv) {
   Fl::add_timeout(TIMER, cb_timer);
   if (opts.play) {
     play();
-    button_play->setonly();
   }
   if (opts.skipfile) {
     input_skipfile->value(opts.skipfile);
@@ -717,6 +732,7 @@ int main(int argc, char **argv) {
 #elif __APPLE__
   fl_mac_set_about((Fl_Callback *)cb_about, NULL, 0);
 #endif
+  Fl::add_handler(event_handler);
   window_main->show(argc, argv);
   return Fl::run();
 }
