@@ -20,7 +20,7 @@ jobs:
     - name: Install packages
       run: pacman -S --noconfirm mingw-w64-x86_64-fltk mingw-w64-x86_64-osslsigncode
     - name: Code sign certificate
-      run: echo "${{ secrets.CODE_SIGN_CERTIFICATE }}" | base64 -d > daansysems.pfx
+      run: echo "${{ secrets.CODE_SIGN_CERTIFICATE }}" | base64 -d > ./daansysems.pfx
     - name: Make
       run: CODE_SIGN_CERTIFICATE_PASSWORD=${{ secrets.CODE_SIGN_CERTIFICATE_PASSWORD }} make windows-signed
     - name: Set current date
