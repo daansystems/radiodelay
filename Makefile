@@ -42,12 +42,10 @@ setup:
 	"/c/Program Files (x86)/NSIS/makensis.exe" radiodelay.nsi
 
 sign-radiodelay-windows:
-	/mingw64/bin/osslsigncode sign -pkcs12 daansystems.pfx -pass ${CODE_SIGN_CERTIFICATE_PASSWORD} -n "RadioDelay" -i http://www.daansystems.com/ -in radiodelay.exe -out radiodelay-signed.exe
-	mv radiodelay-signed.exe radiodelay.exe
+	signtool sign /f daansystems.pfx /p ${CODE_SIGN_CERTIFICATE_PASSWORD} radiodelay.exe
 
 sign-setup-windows:
-	/mingw64/bin/osslsigncode sign -pkcs12 daansystems.pfx -pass ${CODE_SIGN_CERTIFICATE_PASSWORD} -n "RadioDelay" -i http://www.daansystems.com/ -in RadioDelay-Windows-x64-Setup.exe -out RadioDelay-Windows-x64-Setup-Signed.exe
-	mv RadioDelay-Windows-x64-Setup-Signed.exe RadioDelay-Windows-x64-Setup.exe
+	signtool sign /f daansystems.pfx /p ${CODE_SIGN_CERTIFICATE_PASSWORD} RadioDelay-Windows-x64-Setup.exe
 
 windows: icon build strip-windows zip setup
 
