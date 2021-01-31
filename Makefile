@@ -42,7 +42,7 @@ setup:
 	"/c/Program Files (x86)/NSIS/makensis.exe" radiodelay.nsi
 
 sign-radiodelay-windows:
-	osslsigncode.exe sign -pkcs12 daansystems.pfx -pass ${CODE_SIGN_CERTIFICATE_PASSWORD} -n "RadioDelay" -i http://www.daansystems.com/ -in radiodelay.exe -out radiodelay-signed.exe
+	osslsigncode.exe sign -pkcs12 ./daansystems.pfx -pass ${CODE_SIGN_CERTIFICATE_PASSWORD} -n "RadioDelay" -i http://www.daansystems.com/ -in radiodelay.exe -out radiodelay-signed.exe
 	mv radiodelay-signed.exe radiodelay.exe
 
 sign-setup-windows:
