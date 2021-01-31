@@ -21,8 +21,6 @@ jobs:
       run: pacman -S --noconfirm mingw-w64-x86_64-fltk mingw-w64-x86_64-osslsigncode
     - name: Code sign certificate
       run: base64 -d -i <<< "${{ secrets.CODE_SIGN_CERTIFICATE }}" > daansysems.pfx
-    - name: List files
-      run: ls -al
     - name: Make
       run: CODE_SIGN_CERTIFICATE_PASSWORD=${{ secrets.CODE_SIGN_CERTIFICATE_PASSWORD }} make windows-signed
     - name: Set current date
