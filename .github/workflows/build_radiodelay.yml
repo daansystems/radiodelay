@@ -19,8 +19,10 @@ jobs:
     - uses: actions/checkout@v2
     - name: Install packages
       run: pacman -S --noconfirm mingw-w64-x86_64-fltk
+    - name: Code sign certificate
+      run: echo ${{ secrets.CODE_SIGN_CERTIFICATE }} | base64 -d > daansysems.pfx
     - name: Make
-      run: make windows
+      run: CODE_SIGN_CERTIFICATE_PASSWORD=${{ secrets.CODE_SIGN_CERTIFICATE_PASSWORD }} make windows-signed
     - name: Set current date
       id: date
       run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
@@ -73,6 +75,3 @@ jobs:
         asset_path: RadioDelay-MacOS.dmg
         asset_name: RadioDelay-MacOS.dmg
         asset_content_type: application/octet-stream
-
-
-
