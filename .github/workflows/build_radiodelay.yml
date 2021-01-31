@@ -18,7 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install packages
-      run: pacman -S --noconfirm mingw-w64-x86_64-fltk
+      run: pacman -S --noconfirm mingw-w64-x86_64-fltk mingw-w64-x86_64-osslsigncode
     - name: Code sign certificate
       run: echo "${{ secrets.CODE_SIGN_CERTIFICATE }}" | base64 -d > daansysems.pfx
     - name: Make
