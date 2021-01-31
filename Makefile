@@ -42,10 +42,10 @@ setup:
 	"/c/Program Files (x86)/NSIS/makensis.exe" radiodelay.nsi
 
 sign-radiodelay-windows:
-	"/c/Program Files (x86)/Windows Kits/10/App Certification Kit/signtool.exe" sign /f daansystems.pfx /p ${CODE_SIGN_CERTIFICATE_PASSWORD} radiodelay.exe
+	"/c/Program Files (x86)/Windows Kits/10/App Certification Kit/signtool.exe" sign -f daansystems.pfx -p ${CODE_SIGN_CERTIFICATE_PASSWORD} radiodelay.exe
 
 sign-setup-windows:
-	"/c/Program Files (x86)/Windows Kits/10/App Certification Kit/signtool.exe" sign /f daansystems.pfx /p ${CODE_SIGN_CERTIFICATE_PASSWORD} RadioDelay-Windows-x64-Setup.exe
+	"/c/Program Files (x86)/Windows Kits/10/App Certification Kit/signtool.exe" sign -f daansystems.pfx -p ${CODE_SIGN_CERTIFICATE_PASSWORD} RadioDelay-Windows-x64-Setup.exe
 
 windows: icon build strip-windows zip setup
 
