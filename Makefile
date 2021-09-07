@@ -1,23 +1,20 @@
 MACHINE=$(shell $(CC) -dumpmachine)
 
-FLTKFLAGS=
+LDFLAGS= -O2
 EXT=
 
 ifneq (, $(findstring mingw, $(MACHINE)))
-	FLTKFLAGS += -D"FOO -O2 -static -static-libgcc -static-libstdc++ radiodelay.res.o"
+	LDFLAGS += -static -static-libgcc -static-libstdc++ radiodelay.res.o -luuid
 	EXT += .exe
 else ifneq (, $(findstring linux, $(MACHINE)))
-	FLTKFLAGS += -D"FOO -O2 -static-libgcc -static-libstdc++"
-else
-	FLTKFLAGS += -D"FOO -O2"
+	LDFLAGS += -static-libgcc -static-libstdc++
 endif
-
 
 all: build
 	./radiodelay$(EXT)
 
 build:
-	fltk-config -g --compile radiodelay.cpp $(FLTKFLAGS)
+	`fltk-config --cxx` -g radiodelay.cpp `fltk-config --cxxflags --ldstaticflags` $(LDFLAGS) -o radiodelay$(EXT)
 
 icon:
 	windres radiodelay.rc radiodelay.res.o

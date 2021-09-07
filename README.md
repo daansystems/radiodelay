@@ -15,11 +15,11 @@ on the radio when watching TV. Radio commentary is often a few
 seconds earlier than TV.
 
 # Commandline Options
--delay x.x : Set the delay in x.x seconds.
--in x : Preselect the input device by device index number.
--out x : Preselect the output device by device index number.
--play : Start playing automatically.
--skipfile : Set skipfile.
+-delay x.x : Set the delay in x.x seconds.<br/>
+-in x : Preselect the input device by device index number.<br/>
+-out x : Preselect the output device by device index number.<br/>
+-play : Start playing automatically.<br/>
+-skipfile : Set skipfile.<br/>
 
 ## Example:
 ```
@@ -54,6 +54,6 @@ $ make
 ```
 # Revision history
 
-Pleae look at git commit log:
+Please look at git commit log:
 
 https://github.com/daansystems/radiodelay/commits/master
