@@ -23,7 +23,7 @@ strip-windows:
 	strip radiodelay$(EXT)
 
 strip-macos:
-	strip radiodelay.app/Contents/Macos/radiodelay
+	strip radiodelay.app/Contents/MacOS/radiodelay
 
 zip:
 	zip RadioDelay-Windows-x64.zip radiodelay.exe README.md COPYING
