@@ -1,6 +1,7 @@
 MACHINE=$(shell $(CC) -dumpmachine)
 
-LDFLAGS= -O2
+# LDFLAGS= -O2
+LDFLAGS=
 EXT=
 
 ifneq (, $(findstring mingw, $(MACHINE)))
@@ -8,6 +9,8 @@ ifneq (, $(findstring mingw, $(MACHINE)))
 	EXT += .exe
 else ifneq (, $(findstring linux, $(MACHINE)))
 	LDFLAGS += -static-libgcc -static-libstdc++
+else ifneq (, $(findstring darwin, $(MACHINE)))
+	LDFLAGS += mic_permission.mm -framework AVFoundation
 endif
 
 all: build
@@ -23,16 +26,13 @@ strip-windows:
 	strip radiodelay$(EXT)
 
 strip-macos:
+	mv radiodelay radiodelay.app/Contents/MacOS/radiodelay
 	strip radiodelay.app/Contents/MacOS/radiodelay
 
 zip:
 	zip RadioDelay-Windows-x64.zip radiodelay.exe README.md COPYING
 
 dmg:
-	mkdir -p radiodelay.app/Contents/Resources
-	cp radiodelay.icns radiodelay.app/Contents/Resources
-	/usr/libexec/PlistBuddy -c 'Add :NSMicrophoneUsageDescription string This app requires microphone access' radiodelay.app/Contents/Info.plist
-	/usr/libexec/PlistBuddy -c 'Add :CFBundleIconFile string radiodelay' radiodelay.app/Contents/Info.plist
 	hdiutil create -fs HFS+ -srcfolder "radiodelay.app" -volname "radiodelay" "RadioDelay-MacOS.dmg"
 
 setup:
