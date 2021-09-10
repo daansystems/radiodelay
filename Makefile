@@ -26,6 +26,7 @@ strip-windows:
 	strip radiodelay$(EXT)
 
 strip-macos:
+	mkdir -p radiodelay.app/Contents/MacOS
 	mv radiodelay radiodelay.app/Contents/MacOS/radiodelay
 	strip radiodelay.app/Contents/MacOS/radiodelay
 
