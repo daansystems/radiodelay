@@ -1,7 +1,6 @@
 MACHINE=$(shell $(CC) -dumpmachine)
 
-# LDFLAGS= -O2
-LDFLAGS=
+LDFLAGS= -O2
 EXT=
 
 ifneq (, $(findstring mingw, $(MACHINE)))

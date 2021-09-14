@@ -168,8 +168,8 @@ static void cb_playback(ma_device *pDevice, void *pOutput, const void *pInput,
 static void cb_capture(ma_device *pDevice, void *pOutput, const void *pInput,
                        ma_uint32 frameCount) {
     ma_uint32 framesToWrite = frameCount;
-    ma_uint32 bytesPerFrame = ma_get_bytes_per_frame(pDevice->playback.format,
-                              pDevice->playback.channels);
+    ma_uint32 bytesPerFrame = ma_get_bytes_per_frame(pDevice->capture.format,
+                              pDevice->capture.channels);
     void *pWriteBuffer;
     ma_result result =
         ma_pcm_rb_acquire_write(&ma_pcm_rb_in, &framesToWrite, &pWriteBuffer);
