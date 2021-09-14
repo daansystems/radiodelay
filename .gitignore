@@ -35,3 +35,6 @@ radiodelay
 # Archive
 *.zip
 *.tar.gz
+
+# Certs
+*.pfx
