@@ -148,7 +148,7 @@ static void cb_playback(ma_device *pDevice, void *pOutput, const void *pInput,
     memcpy(pOutput, pReadBuffer, framesToRead * bytesPerFrame);
     result = ma_pcm_rb_commit_read(&ma_pcm_rb_in, framesToRead, pReadBuffer);
     if (result != MA_SUCCESS) {
-        fl_alert("Failed to commit read.\n");
+        // fl_alert("Failed to commit read.\n");
         return;
     }
     ma_uint32 frame = 0;
