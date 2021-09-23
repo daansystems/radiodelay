@@ -42,7 +42,7 @@ sign-radiodelay-windows:
 	"/c/Program Files (x86)/Windows Kits/10/App Certification Kit/signtool.exe" sign -f daansystems.pfx -fd certHash -p ${CODE_SIGN_CERTIFICATE_PASSWORD} radiodelay.exe
 
 sign-setup-windows:
-	"/c/Program Files (x86)/Windows Kits/10/App Certification Kit/signtool.exe" sign -f daansystems.pfx -p -fd certHash ${CODE_SIGN_CERTIFICATE_PASSWORD} RadioDelay-Windows-x64-Setup.exe
+	"/c/Program Files (x86)/Windows Kits/10/App Certification Kit/signtool.exe" sign -f daansystems.pfx -fd certHash -p ${CODE_SIGN_CERTIFICATE_PASSWORD} RadioDelay-Windows-x64-Setup.exe
 
 windows: icon build strip-windows zip setup
 
