@@ -2,7 +2,7 @@ name: build_radiodelay
 
 on:
   push:
-    branches: [ master ]
+    branches: [ test-github-actions ]
 
 jobs:
   windows:
@@ -21,57 +21,8 @@ jobs:
       run: pacman -S --needed --noconfirm mingw-w64-x86_64-fltk mingw-w64-x86_64-make
     - name: Code sign certificate
       run: base64 -d -i <<< "${{ secrets.CODE_SIGN_CERTIFICATE }}" > daansystems.pfx
+    - name: Check make
+      run: type make
     - name: Make
       run: CODE_SIGN_CERTIFICATE_PASSWORD=${{ secrets.CODE_SIGN_CERTIFICATE_PASSWORD }} make windows-signed
-    - name: Set current date
-      id: date
-      run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-    - name: Create release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.date.outputs.date }}
-        release_name: Release ${{ steps.date.outputs.date }}
-        draft: false
-        prerelease: false
-    - name: Upload release zip
-      id: upload-release-asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: RadioDelay-Windows-x64.zip
-        asset_name: RadioDelay-Windows-x64.zip
-        asset_content_type: application/zip
-    - name: Upload release setup exe
-      id: upload-release-asset-setup
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: RadioDelay-Windows-x64-Setup.exe
-        asset_name: RadioDelay-Windows-x64-Setup.exe
-        asset_content_type: application/exe
-  macos:
-    runs-on: macos-latest
-    needs: windows
-    steps:
-    - uses: actions/checkout@v2
-    - name: Install packages
-      run: brew install fltk
-    - name: Make
-      run: make macos
-    - name: Upload release setup dmg
-      id: upload-release-asset-setup
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ needs.windows.outputs.upload_url }}
-        asset_path: RadioDelay-MacOS.dmg
-        asset_name: RadioDelay-MacOS.dmg
-        asset_content_type: application/octet-stream
+   
