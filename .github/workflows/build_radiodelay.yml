@@ -18,13 +18,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install packages
-      run: pacman -S --needed --noconfirm mingw-w64-x86_64-fltk mingw-w64-x86_64-make
+      run: pacman -S --needed --noconfirm mingw-w64-x86_64-fltk make mingw-w64-x86_64-gcc mingw-w64-x86_64-binutils
     - name: Code sign certificate
       run: base64 -d -i <<< "${{ secrets.CODE_SIGN_CERTIFICATE }}" > daansystems.pfx
-    - name: Check path
-      run: echo $PATH
-    - name: Check make
-      run: ls /mingw64/bin
     - name: Make
       run: CODE_SIGN_CERTIFICATE_PASSWORD=${{ secrets.CODE_SIGN_CERTIFICATE_PASSWORD }} make windows-signed
    
