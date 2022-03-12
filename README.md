@@ -3,7 +3,7 @@
 
 ![Screenshot](radiodelay.gif)
 
-#### (C)2006-2020 DaanSystems
+#### (C)2006-2022 DaanSystems
 #### License: GPLv3
 #### Homepage: https://daansystems.com/radiodelay
 #### Github: https://github.com/daansystems/radiodelay
@@ -15,6 +15,7 @@ on the radio when watching TV. Radio commentary is often a few
 seconds earlier than TV.
 
 # Commandline Options
+-driver x : Set the input driver by driver index number<br/>
 -delay x.x : Set the delay in x.x seconds.<br/>
 -in x : Preselect the input device by device index number.<br/>
 -out x : Preselect the output device by device index number.<br/>

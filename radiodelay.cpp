@@ -146,7 +146,7 @@ static void cb_playback(ma_device *pDevice, void *pOutput, const void *pInput,
         return;
     }
     memcpy(pOutput, pReadBuffer, framesToRead * bytesPerFrame);
-    result = ma_pcm_rb_commit_read(&ma_pcm_rb_in, framesToRead, pReadBuffer);
+    result = ma_pcm_rb_commit_read(&ma_pcm_rb_in, framesToRead);
     if (result != MA_SUCCESS) {
         // fl_alert("Failed to commit read.\n");
         return;
@@ -178,7 +178,7 @@ static void cb_capture(ma_device *pDevice, void *pOutput, const void *pInput,
         return;
     }
     memcpy(pWriteBuffer, pInput, framesToWrite * bytesPerFrame);
-    result = ma_pcm_rb_commit_write(&ma_pcm_rb_in, framesToWrite, pWriteBuffer);
+    result = ma_pcm_rb_commit_write(&ma_pcm_rb_in, framesToWrite);
     if (result != MA_SUCCESS) {
         fl_alert("Failed to commit write.\n");
     }
@@ -237,8 +237,8 @@ static void skip_finished(void *userData) {
 
 void cb_skip_data(ma_device *pDevice, void *pOutput, const void *pInput,
                   ma_uint32 frameCount) {
-    ma_uint64 frames =
-        ma_decoder_read_pcm_frames(&ma_skip_decoder, pOutput, frameCount);
+    ma_uint64 frames = 0;
+    ma_result result = ma_decoder_read_pcm_frames(&ma_skip_decoder, pOutput, frameCount, &frames);
     // fprintf(stderr, "REQUEST FRAMES: %d READ FRAMES: %d\n", frameCount,
     // frames);
     if (frames < frameCount) {
