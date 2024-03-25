@@ -4,8 +4,6 @@
 #include "radiodelay.xpm"
 #endif
 
-#define DR_WAV_IMPLEMENTATION
-#include "dr_wav.h"
 #define MA_DEBUG_OUTPUT
 #define MINIAUDIO_IMPLEMENTATION
 // #define MA_NO_PULSEAUDIO
@@ -469,7 +467,7 @@ void cb_about() {
     }
     char newtxt[255];
     snprintf(newtxt, 254,
-             "RadioDelay Build %d%02d%02d %dbit\nCopyright 2006-2020 DaanSystems\nLicense: GPLv3",
+             "RadioDelay Build %d%02d%02d %dbit\nCopyright 2006-2024 DaanSystems\nLicense: GPLv3",
              year, monthnum + 1, day, sizeof(size_t) == 8 ? 64 : 32);
     output_about->value(newtxt);
     window_about->show();
