@@ -3,7 +3,7 @@
 
 ![Screenshot](radiodelay.gif)
 
-#### (C)2006-2022 DaanSystems
+#### (C)2006-2024 DaanSystems
 #### License: GPLv3
 #### Homepage: https://daansystems.com/radiodelay
 #### Github: https://github.com/daansystems/radiodelay
