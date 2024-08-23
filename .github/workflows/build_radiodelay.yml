@@ -58,7 +58,7 @@ jobs:
     runs-on: macos-latest
     needs: windows
     steps:
-    - uses: actions/checkout@4
+    - uses: actions/checkout@v4
     - name: Install packages
       run: brew install fltk
     - name: Make
