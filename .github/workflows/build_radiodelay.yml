@@ -1,8 +1,7 @@
 name: build_radiodelay
 
 on:
-  push:
-    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   windows:
