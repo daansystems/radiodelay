@@ -18,6 +18,11 @@ all: build
 build:
 	`fltk-config --cxx` -g radiodelay.cpp `fltk-config --cxxflags --ldstaticflags` $(LDFLAGS) -o radiodelay$(EXT)
 
+build-macos:
+	`fltk-config --cxx` -g radiodelay.cpp `fltk-config --cxxflags --ldstaticflags` $(LDFLAGS) -arch arm64 -o radiodelay-arm64
+	`fltk-config --cxx` -g radiodelay.cpp `fltk-config --cxxflags --ldstaticflags` $(LDFLAGS) -arch x86_64 -o radiodelay-x86_64
+	lipo -create radiodelay-arm64 radiodelay-x86_64 -output radiodelay
+
 icon:
 	windres radiodelay.rc radiodelay.res.o
 
@@ -48,4 +53,5 @@ windows: icon build strip-windows zip setup
 
 windows-signed: icon build strip-windows sign-radiodelay-windows zip setup sign-setup-windows
 
-macos: build strip-macos dmg
+macos: build-macos strip-macos dmg
+	
