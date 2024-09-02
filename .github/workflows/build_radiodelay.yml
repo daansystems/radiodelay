@@ -59,7 +59,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install packages
-      run: brew install fltk
+      run: |
+        arch -arm64 brew install fltk
+        arch -x86_64 brew install fltk
     - name: Make
       run: make macos
     - name: Upload release setup dmg
