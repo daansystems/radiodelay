@@ -54,7 +54,7 @@ jobs:
         asset_name: RadioDelay-Windows-x64-Setup.exe
         asset_content_type: application/exe
   macos-x64:
-    runs-on: macos-14-large
+    runs-on: macos-13
     needs: windows
     steps:
     - uses: actions/checkout@v4
