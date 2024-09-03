@@ -49,3 +49,4 @@ windows: icon build strip-windows zip setup
 windows-signed: icon build strip-windows sign-radiodelay-windows zip setup sign-setup-windows
 
 macos: build strip-macos dmg
+	

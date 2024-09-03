@@ -53,13 +53,14 @@ jobs:
         asset_path: RadioDelay-Windows-x64-Setup.exe
         asset_name: RadioDelay-Windows-x64-Setup.exe
         asset_content_type: application/exe
-  macos:
-    runs-on: macos-latest
+  macos-x64:
+    runs-on: macos-14-large
     needs: windows
     steps:
     - uses: actions/checkout@v4
     - name: Install packages
-      run: brew install fltk
+      run: |
+        brew install fltk
     - name: Make
       run: make macos
     - name: Upload release setup dmg
@@ -70,5 +71,25 @@ jobs:
       with:
         upload_url: ${{ needs.windows.outputs.upload_url }}
         asset_path: RadioDelay-MacOS.dmg
-        asset_name: RadioDelay-MacOS.dmg
+        asset_name: RadioDelay-MacOS-x86_64.dmg
+        asset_content_type: application/octet-stream
+  macos-arm64:
+    runs-on: macos-14
+    needs: windows
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install packages
+      run: |
+        brew install fltk
+    - name: Make
+      run: make macos
+    - name: Upload release setup dmg
+      id: upload-release-asset-setup
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.windows.outputs.upload_url }}
+        asset_path: RadioDelay-MacOS.dmg
+        asset_name: RadioDelay-MacOS-arm64.dmg
         asset_content_type: application/octet-stream
