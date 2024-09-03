@@ -18,9 +18,6 @@ all: build
 build:
 	`fltk-config --cxx` -g radiodelay.cpp `fltk-config --cxxflags --ldstaticflags` $(LDFLAGS) -o radiodelay$(EXT)
 
-build-macos:
-	`fltk-config --cxx` -g radiodelay.cpp `fltk-config --cxxflags --ldstaticflags` $(LDFLAGS) -o radiodelay
-	
 icon:
 	windres radiodelay.rc radiodelay.res.o
 
