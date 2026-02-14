@@ -35,6 +35,8 @@ static ma_pcm_rb ma_pcm_rb_in;
 static float amplitude_in[2];
 static float amplitude_out[2];
 static ma_backend enabledBackends[MA_BACKEND_COUNT];
+static ma_uint32 configuredDelayFrames;
+static double configuredDelaySeconds;
 
 Fl_Choice *choice_driver = (Fl_Choice *)0;
 Fl_Choice *choice_input = (Fl_Choice *)0;
@@ -53,6 +55,23 @@ Fl_Window *window_about = (Fl_Window *)0;
 Fl_Double_Window *window_main = (Fl_Double_Window *)0;
 Fl_Button *button_mixer = (Fl_Button *)0;
 Fl_Button *button_exit = (Fl_Button *)0;
+
+static ma_uint32 calculate_delay_frames(double delaySeconds) {
+    if (delaySeconds <= 0) {
+        return 0;
+    }
+
+    const ma_uint64 requestedFrames = (ma_uint64)(delaySeconds * DEVICE_SAMPLE_RATE);
+    const ma_uint64 bytesPerFrame = ma_get_bytes_per_frame(DEVICE_FORMAT, DEVICE_CHANNELS);
+    const ma_uint64 maxRbBytes = 0x7FFFFFFFULL - (MA_SIMD_ALIGNMENT - 1);
+    const ma_uint64 maxFrames = maxRbBytes / bytesPerFrame;
+
+    if (requestedFrames > maxFrames) {
+        return (ma_uint32)maxFrames;
+    }
+
+    return (ma_uint32)requestedFrames;
+}
 
 const char *get_opt(const char *name, int argc, char **argv, int i) {
     char *a = argv[i];
@@ -293,16 +312,26 @@ bool play() {
         return false;
     }
     playing = false;
-    ma_uint32 input_delayFramecount =
-        ma_calculate_buffer_size_in_frames_from_milliseconds(
-            ma_uint32(input_delay->value() * 1000), DEVICE_SAMPLE_RATE);
+    configuredDelayFrames = calculate_delay_frames(input_delay->value());
+    configuredDelaySeconds = (double)configuredDelayFrames / DEVICE_SAMPLE_RATE;
+    if (configuredDelayFrames == 0) {
+        fl_alert("Invalid delay value.\n");
+        button_play->clear();
+        return false;
+    }
     ma_device_info *info_in =
         (ma_device_info *)choice_input->mvalue()->user_data();
     ma_device_info *info_out =
         (ma_device_info *)choice_output->mvalue()->user_data();
-    progress_input_delay->maximum(input_delay->value());
-    ma_pcm_rb_init(DEVICE_FORMAT, DEVICE_CHANNELS, input_delayFramecount, NULL,
-                   NULL, &ma_pcm_rb_in);
+    progress_input_delay->maximum(configuredDelaySeconds);
+    ma_result result =
+        ma_pcm_rb_init(DEVICE_FORMAT, DEVICE_CHANNELS, configuredDelayFrames, NULL,
+                       NULL, &ma_pcm_rb_in);
+    if (result != MA_SUCCESS) {
+        fl_alert("Failed to initialize delay buffer.\n");
+        button_play->clear();
+        return false;
+    }
     ma_device_config deviceConfig = ma_device_config_init(ma_device_type_capture);
     deviceConfig.capture.format = DEVICE_FORMAT;
     deviceConfig.capture.channels = DEVICE_CHANNELS;
@@ -314,9 +343,10 @@ bool play() {
     // deviceConfig.periods = 1;
     // deviceConfig.bufferSizeInFrames = 1000;
     deviceConfig.pUserData = NULL;
-    ma_result result = ma_device_init(&context, &deviceConfig, &ma_device_in);
+    result = ma_device_init(&context, &deviceConfig, &ma_device_in);
     if (result != MA_SUCCESS) {
         fl_alert("Failed to initialize capture device.\n");
+        ma_pcm_rb_uninit(&ma_pcm_rb_in);
         button_play->clear();
         return false;
     }
@@ -332,6 +362,8 @@ bool play() {
     deviceConfig.pUserData = NULL;
     if (ma_device_init(&context, &deviceConfig, &ma_device_out) != MA_SUCCESS) {
         fl_alert("Failed to open playback device.\n");
+        ma_device_uninit(&ma_device_in);
+        ma_pcm_rb_uninit(&ma_pcm_rb_in);
         button_play->clear();
         return false;
     }
@@ -341,6 +373,9 @@ bool play() {
     amplitude_out[1] = 0;
     if (ma_device_start(&ma_device_in) != MA_SUCCESS) {
         fl_alert("Failed to start recording device.\n");
+        ma_device_uninit(&ma_device_out);
+        ma_device_uninit(&ma_device_in);
+        ma_pcm_rb_uninit(&ma_pcm_rb_in);
         button_play->clear();
         return false;
     }
@@ -368,8 +403,8 @@ void cb_timer(void *) {
     if (recording) {
         if (!playing) {
             double now = ma_timer_get_time_in_seconds(&timer);
-            if (now >= input_delay->value()) {
-                progress_input_delay->value(input_delay->value());
+            if (now >= configuredDelaySeconds) {
+                progress_input_delay->value(configuredDelaySeconds);
                 playing = true;
                 if (ma_device_start(&ma_device_out) != MA_SUCCESS) {
                     fl_alert("Failed to start playback device.\n");
